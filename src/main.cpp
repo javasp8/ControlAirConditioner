@@ -224,33 +224,42 @@ void setup() {
 // ダイキン冷房20度専用送信関数
 void sendDaikinCooling20() {
   Serial.println("ダイキン 冷房20度 送信開始");
-  
+
+  // 受信を無効化（送信中の干渉を防ぐ）
+  irrecv.disableIRIn();
+
   // フレーム1送信
   irsend.sendRaw(frame1, sizeof(frame1)/sizeof(frame1[0]), 38);
   delay(29); // 29msギャップ
-  
+
   // フレーム2送信
   irsend.sendRaw(frame2, sizeof(frame2)/sizeof(frame2[0]), 38);
   delay(29);
-  
+
   // フレーム3送信
   irsend.sendRaw(frame3, sizeof(frame3)/sizeof(frame3[0]), 38);
   delay(29);
-  
+
   // フレーム4送信
   irsend.sendRaw(frame4, sizeof(frame4)/sizeof(frame4[0]), 38);
   delay(29);
-  
+
   // フレーム5送信
   irsend.sendRaw(frame5, sizeof(frame5)/sizeof(frame5[0]), 38);
-  
+
   Serial.println("冷房20度 送信完了");
+
+  // 受信を再度有効化
+  irrecv.enableIRIn();
   delay(100);
 }
 
 // ダイキン自動+1度専用送信関数
 void sendDaikinAutoPlus1() {
   Serial.println("ダイキン 自動+1度 送信開始");
+
+  // 受信を無効化（送信中の干渉を防ぐ）
+  irrecv.disableIRIn();
 
   // フレーム1送信
   irsend.sendRaw(auto_frame1, sizeof(auto_frame1)/sizeof(auto_frame1[0]), 38);
@@ -272,33 +281,42 @@ void sendDaikinAutoPlus1() {
   irsend.sendRaw(auto_frame5, sizeof(auto_frame5)/sizeof(auto_frame5[0]), 38);
 
   Serial.println("自動+1度 送信完了");
+
+  // 受信を再度有効化
+  irrecv.enableIRIn();
   delay(100);
 }
 
 // ダイキン除湿-1.5専用送信関数
 void sendDaikinDehumidMinus1_5() {
   Serial.println("ダイキン 除湿-1.5 送信開始");
-  
+
+  // 受信を無効化（送信中の干渉を防ぐ）
+  irrecv.disableIRIn();
+
   // フレーム1送信
   irsend.sendRaw(dehumid_frame1, sizeof(dehumid_frame1)/sizeof(dehumid_frame1[0]), 38);
   delay(29);
-  
+
   // フレーム2送信
   irsend.sendRaw(dehumid_frame2, sizeof(dehumid_frame2)/sizeof(dehumid_frame2[0]), 38);
   delay(29);
-  
+
   // フレーム3送信
   irsend.sendRaw(dehumid_frame3, sizeof(dehumid_frame3)/sizeof(dehumid_frame3[0]), 38);
   delay(29);
-  
+
   // フレーム4送信
   irsend.sendRaw(dehumid_frame4, sizeof(dehumid_frame4)/sizeof(dehumid_frame4[0]), 38);
   delay(29);
-  
+
   // フレーム5送信
   irsend.sendRaw(dehumid_frame5, sizeof(dehumid_frame5)/sizeof(dehumid_frame5[0]), 38);
-  
+
   Serial.println("除湿-1.5 送信完了");
+
+  // 受信を再度有効化
+  irrecv.enableIRIn();
   delay(100);
 }
 
