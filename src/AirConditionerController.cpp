@@ -1,5 +1,4 @@
 #include "AirConditionerController.h"
-#include "DaikinIRData.h"
 #include <IRutils.h>
 
 // 温度・湿度の閾値
@@ -10,20 +9,13 @@ namespace Threshold {
   constexpr float HUM_LOW = 56.0f;
 }
 
-// IR送信設定
-namespace IRConfig {
-  constexpr uint16_t CARRIER_FREQUENCY_KHZ = 38;
-  constexpr uint16_t FRAME_GAP_MS = 35;
-  constexpr uint16_t POST_SEND_DELAY_MS = 200;
-}
-
 AirConditionerController::AirConditionerController(uint8_t sendPin, uint8_t recvPin)
-  : irSend_(sendPin), irRecv_(recvPin), currentMode_(ACMode::NONE) {
+  : daikinAC_(sendPin), irRecv_(recvPin), currentMode_(ACMode::NONE) {
 }
 
 void AirConditionerController::begin() {
+  daikinAC_.begin();
   irRecv_.enableIRIn();
-  irSend_.begin();
   Serial.println("[AC] エアコンコントローラー初期化完了");
 }
 
@@ -106,76 +98,74 @@ void AirConditionerController::handleIRReceive() {
   }
 }
 
-void AirConditionerController::sendFrames(
-    const uint16_t* frame1, uint16_t len1,
-    const uint16_t* frame2, uint16_t len2,
-    const uint16_t* frame3, uint16_t len3,
-    const uint16_t* frame4, uint16_t len4,
-    const uint16_t* frame5, uint16_t len5,
-    const char* modeName) {
-
-  Serial.printf("[AC] %s 送信開始\n", modeName);
+void AirConditionerController::sendCooling20() {
+  Serial.println("[AC] 冷房20度 送信開始");
 
   // 受信を無効化（送信中の干渉を防ぐ）
   irRecv_.disableIRIn();
 
-  // フレーム1送信
-  Serial.println("  [1/5] フレーム1送信");
-  irSend_.sendRaw(frame1, len1, IRConfig::CARRIER_FREQUENCY_KHZ);
-  delay(IRConfig::FRAME_GAP_MS);
+  // ダイキンエアコンの設定
+  daikinAC_.on();                        // 電源ON
+  daikinAC_.setMode(kDaikinCool);        // 冷房モード
+  daikinAC_.setTemp(20);                 // 温度20度
+  daikinAC_.setFan(kDaikinFanAuto);      // 風量自動
+  daikinAC_.setSwingVertical(false);     // スイング無効
+  daikinAC_.setSwingHorizontal(false);   // 水平スイング無効
 
-  // フレーム2送信
-  Serial.println("  [2/5] フレーム2送信");
-  irSend_.sendRaw(frame2, len2, IRConfig::CARRIER_FREQUENCY_KHZ);
-  delay(IRConfig::FRAME_GAP_MS);
+  // IR信号送信
+  daikinAC_.send();
 
-  // フレーム3送信
-  Serial.println("  [3/5] フレーム3送信");
-  irSend_.sendRaw(frame3, len3, IRConfig::CARRIER_FREQUENCY_KHZ);
-  delay(IRConfig::FRAME_GAP_MS);
-
-  // フレーム4送信
-  Serial.println("  [4/5] フレーム4送信");
-  irSend_.sendRaw(frame4, len4, IRConfig::CARRIER_FREQUENCY_KHZ);
-  delay(IRConfig::FRAME_GAP_MS);
-
-  // フレーム5送信
-  Serial.println("  [5/5] フレーム5送信");
-  irSend_.sendRaw(frame5, len5, IRConfig::CARRIER_FREQUENCY_KHZ);
-
-  Serial.printf("[AC] %s 送信完了\n", modeName);
+  Serial.println("[AC] 冷房20度 送信完了");
 
   // 受信を再度有効化
-  delay(IRConfig::POST_SEND_DELAY_MS);
+  delay(200);
   irRecv_.enableIRIn();
 }
 
-void AirConditionerController::sendCooling20() {
-  using namespace DaikinIR::Cooling20;
-  sendFrames(frame1, frame1_length,
-             frame2, frame2_length,
-             frame3, frame3_length,
-             frame4, frame4_length,
-             frame5, frame5_length,
-             "冷房20度");
-}
-
 void AirConditionerController::sendAutoPlus1() {
-  using namespace DaikinIR::AutoPlus1;
-  sendFrames(frame1, frame1_length,
-             frame2, frame2_length,
-             frame3, frame3_length,
-             frame4, frame4_length,
-             frame5, frame5_length,
-             "自動+1度");
+  Serial.println("[AC] 自動+1度 送信開始");
+
+  // 受信を無効化
+  irRecv_.disableIRIn();
+
+  // ダイキンエアコンの設定
+  daikinAC_.on();                        // 電源ON
+  daikinAC_.setMode(kDaikinAuto);        // 自動モード
+  daikinAC_.setTemp(27);                 // 温度27度（基準26度+1度）
+  daikinAC_.setFan(kDaikinFanAuto);      // 風量自動
+  daikinAC_.setSwingVertical(false);     // スイング無効
+  daikinAC_.setSwingHorizontal(false);   // 水平スイング無効
+
+  // IR信号送信
+  daikinAC_.send();
+
+  Serial.println("[AC] 自動+1度 送信完了");
+
+  // 受信を再度有効化
+  delay(200);
+  irRecv_.enableIRIn();
 }
 
 void AirConditionerController::sendDehumidMinus1_5() {
-  using namespace DaikinIR::DehumidMinus1_5;
-  sendFrames(frame1, frame1_length,
-             frame2, frame2_length,
-             frame3, frame3_length,
-             frame4, frame4_length,
-             frame5, frame5_length,
-             "除湿-1.5");
+  Serial.println("[AC] 除湿-1.5 送信開始");
+
+  // 受信を無効化
+  irRecv_.disableIRIn();
+
+  // ダイキンエアコンの設定
+  daikinAC_.on();                        // 電源ON
+  daikinAC_.setMode(kDaikinDry);         // 除湿モード
+  daikinAC_.setTemp(24.5);               // 温度24.5度（基準26度-1.5度）
+  daikinAC_.setFan(kDaikinFanAuto);      // 風量自動
+  daikinAC_.setSwingVertical(false);     // スイング無効
+  daikinAC_.setSwingHorizontal(false);   // 水平スイング無効
+
+  // IR信号送信
+  daikinAC_.send();
+
+  Serial.println("[AC] 除湿-1.5 送信完了");
+
+  // 受信を再度有効化
+  delay(200);
+  irRecv_.enableIRIn();
 }

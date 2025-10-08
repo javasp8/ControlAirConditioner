@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <IRremoteESP8266.h>
 #include <IRrecv.h>
-#include <IRsend.h>
+#include <ir_Daikin.h>
 
 // エアコンの動作モード
 enum class ACMode {
@@ -35,7 +35,7 @@ public:
   void handleIRReceive();
 
 private:
-  IRsend irSend_;
+  IRDaikinESP daikinAC_;
   IRrecv irRecv_;
   ACMode currentMode_;
 
@@ -43,14 +43,6 @@ private:
   void sendCooling20();
   void sendAutoPlus1();
   void sendDehumidMinus1_5();
-
-  // フレームを送信するヘルパー関数
-  void sendFrames(const uint16_t* frame1, uint16_t len1,
-                  const uint16_t* frame2, uint16_t len2,
-                  const uint16_t* frame3, uint16_t len3,
-                  const uint16_t* frame4, uint16_t len4,
-                  const uint16_t* frame5, uint16_t len5,
-                  const char* modeName);
 };
 
 #endif // AIR_CONDITIONER_CONTROLLER_H

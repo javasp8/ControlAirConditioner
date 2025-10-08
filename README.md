@@ -34,3 +34,31 @@
   5. 再利用性
     - 各クラスは独立して他のプロジェクトでも使用可能
     - IRデータは簡単に追加・変更可能
+
+
+✅ 修正完了
+
+  ブログとIRremoteESP8266ライブラリの調査に基づいて、以下の重要な修正を実施しました：
+
+  🔄 主な変更点
+
+  1. sendRaw()からIRDaikinESPクラスへ移行
+    - ❌ 旧: 手動でRawデータを5フレームに分けて送信
+    - ✅ 新: IRDaikinESPクラスを使用し、設定値を指定するだけで自動送信
+  2. コードの大幅な簡素化
+    - DaikinIRData.h（280行のRawデータ定義）を削除
+    - AirConditionerController.cppを188行→172行に削減
+    - フレーム分割やタイミング管理が不要に
+  3. 動作の信頼性向上
+    - ライブラリが正しいダイキンプロトコルで自動送信
+    - フレーム間ギャップ、チェックサム計算などを自動処理
+    - エラーが起きにくい設計
+
+  📝 新しい設定方法
+
+  // 冷房20度の例
+  daikinAC_.on();                        // 電源ON
+  daikinAC_.setMode(kDaikinCool);        // 冷房モード
+  daikinAC_.setTemp(20);                 // 温度20度
+  daikinAC_.setFan(kDaikinFanAuto);      // 風量自動
+  daikinAC_.send();                      // 送信
