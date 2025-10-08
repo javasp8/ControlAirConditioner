@@ -229,29 +229,34 @@ void sendDaikinCooling20() {
   irrecv.disableIRIn();
 
   // フレーム1送信
+  Serial.println("  フレーム1送信...");
   irsend.sendRaw(frame1, sizeof(frame1)/sizeof(frame1[0]), 38);
-  delay(29); // 29msギャップ
+  delay(35); // フレーム間ギャップ
 
   // フレーム2送信
+  Serial.println("  フレーム2送信...");
   irsend.sendRaw(frame2, sizeof(frame2)/sizeof(frame2[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム3送信
+  Serial.println("  フレーム3送信...");
   irsend.sendRaw(frame3, sizeof(frame3)/sizeof(frame3[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム4送信
+  Serial.println("  フレーム4送信...");
   irsend.sendRaw(frame4, sizeof(frame4)/sizeof(frame4[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム5送信
+  Serial.println("  フレーム5送信...");
   irsend.sendRaw(frame5, sizeof(frame5)/sizeof(frame5[0]), 38);
 
   Serial.println("冷房20度 送信完了");
 
   // 受信を再度有効化
+  delay(200);
   irrecv.enableIRIn();
-  delay(100);
 }
 
 // ダイキン自動+1度専用送信関数
@@ -262,29 +267,34 @@ void sendDaikinAutoPlus1() {
   irrecv.disableIRIn();
 
   // フレーム1送信
+  Serial.println("  フレーム1送信...");
   irsend.sendRaw(auto_frame1, sizeof(auto_frame1)/sizeof(auto_frame1[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム2送信
+  Serial.println("  フレーム2送信...");
   irsend.sendRaw(auto_frame2, sizeof(auto_frame2)/sizeof(auto_frame2[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム3送信
+  Serial.println("  フレーム3送信...");
   irsend.sendRaw(auto_frame3, sizeof(auto_frame3)/sizeof(auto_frame3[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム4送信
+  Serial.println("  フレーム4送信...");
   irsend.sendRaw(auto_frame4, sizeof(auto_frame4)/sizeof(auto_frame4[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム5送信
+  Serial.println("  フレーム5送信...");
   irsend.sendRaw(auto_frame5, sizeof(auto_frame5)/sizeof(auto_frame5[0]), 38);
 
   Serial.println("自動+1度 送信完了");
 
   // 受信を再度有効化
+  delay(200);
   irrecv.enableIRIn();
-  delay(100);
 }
 
 // ダイキン除湿-1.5専用送信関数
@@ -295,29 +305,34 @@ void sendDaikinDehumidMinus1_5() {
   irrecv.disableIRIn();
 
   // フレーム1送信
+  Serial.println("  フレーム1送信...");
   irsend.sendRaw(dehumid_frame1, sizeof(dehumid_frame1)/sizeof(dehumid_frame1[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム2送信
+  Serial.println("  フレーム2送信...");
   irsend.sendRaw(dehumid_frame2, sizeof(dehumid_frame2)/sizeof(dehumid_frame2[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム3送信
+  Serial.println("  フレーム3送信...");
   irsend.sendRaw(dehumid_frame3, sizeof(dehumid_frame3)/sizeof(dehumid_frame3[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム4送信
+  Serial.println("  フレーム4送信...");
   irsend.sendRaw(dehumid_frame4, sizeof(dehumid_frame4)/sizeof(dehumid_frame4[0]), 38);
-  delay(29);
+  delay(35);
 
   // フレーム5送信
+  Serial.println("  フレーム5送信...");
   irsend.sendRaw(dehumid_frame5, sizeof(dehumid_frame5)/sizeof(dehumid_frame5[0]), 38);
 
   Serial.println("除湿-1.5 送信完了");
 
   // 受信を再度有効化
+  delay(200);
   irrecv.enableIRIn();
-  delay(100);
 }
 
 void controlAirConditioner(float temp, float hum) {
