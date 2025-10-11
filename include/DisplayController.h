@@ -5,6 +5,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "EnvironmentSensor.h"
+#include "WeatherForecast.h"
 
 // ディスプレイコントローラークラス
 class DisplayController {
@@ -18,7 +19,10 @@ public:
   void showStartupScreen();
 
   // センサーデータを表示
-  void showSensorData(const SensorData& data);
+  void showSensorData(const SensorData& data, const String datetime);
+
+  // センサーデータと天気予報を表示
+  void showSensorDataWithWeather(const SensorData& data, const String datetime, const WeatherData& weather);
 
   // エラー画面を表示
   void showError(const char* message);

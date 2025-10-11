@@ -9,3 +9,12 @@ in the development cycle.
 
 More information about PlatformIO Unit Testing:
 - https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+
+---
+
+このディレクトリは、PlatformIO Test Runner およびプロジェクトテスト用に用意されています。
+
+ユニットテストとは、ソースコードの個々の単位、つまり1つ以上のMCUプログラムモジュールと関連する制御データ、使用手順、操作手順のセットをテストし、それらが使用に適しているかどうかを判断するソフトウェアテスト手法です。ユニットテストは開発サイクルの早い段階で問題を発見します。
+
+PlatformIO ユニットテストの詳細情報：
+- https://docs.platformio.org/en/latest/advanced/unit-testing/index.html

@@ -9,6 +9,7 @@
 // エアコンの動作モード
 enum class ACMode {
   NONE,
+  OFF,               // エアコン停止（電源オフ）
   COOLING_20,        // 冷房20度
   AUTO_PLUS_1,       // 自動+1度
   DEHUMID_MINUS_1_5  // 除湿-1.5
@@ -31,6 +32,9 @@ public:
   // 温度と湿度に基づいて最適なモードを決定
   ACMode determineOptimalMode(float temperature, float humidity);
 
+  // 不快指数（DI）を計算
+  float calculateDiscomfortIndex(float temperature, float humidity);
+
   // 赤外線信号の受信処理
   void handleIRReceive();
 
@@ -40,6 +44,7 @@ private:
   ACMode currentMode_;
 
   // 各モードの送信関数
+  void sendOff();              // エアコン停止（電源オフ）
   void sendCooling20();
   void sendAutoPlus1();
   void sendDehumidMinus1_5();

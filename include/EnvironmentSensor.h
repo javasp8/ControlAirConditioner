@@ -8,11 +8,14 @@
 struct SensorData {
   float temperature;
   float humidity;
+  float discomfortIndex;  // 不快指数（DI）
   bool isValid;
 
-  SensorData() : temperature(0.0f), humidity(0.0f), isValid(false) {}
+  SensorData() : temperature(0.0f), humidity(0.0f), discomfortIndex(0.0f), isValid(false) {}
   SensorData(float temp, float hum, bool valid)
-    : temperature(temp), humidity(hum), isValid(valid) {}
+    : temperature(temp), humidity(hum), discomfortIndex(0.0f), isValid(valid) {}
+  SensorData(float temp, float hum, float di, bool valid)
+    : temperature(temp), humidity(hum), discomfortIndex(di), isValid(valid) {}
 };
 
 // 環境センサークラス
