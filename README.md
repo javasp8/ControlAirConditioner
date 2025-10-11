@@ -6,8 +6,9 @@ ESP32を使用したダイキンエアコンの自動制御システムです。
 
 - 📊 **不快指数（DI）ベースの自動制御**: 温度と湿度から快適度を判断
 - 🌡️ **DHT22センサー**: 温度・湿度の高精度測定
-- 📺 **OLEDディスプレイ**: リアルタイムでセンサー情報を表示
-- 🌐 **WiFi対応**: NTP時刻同期、将来的なIoT連携
+- 📺 **OLEDディスプレイ**: リアルタイムでセンサー情報と天気予報を表示
+- 🌐 **WiFi対応**: NTP時刻同期、天気予報API連携
+- ☀️ **天気予報表示**: Open-Meteo APIから最高・最低気温と天気を取得・表示
 - ⏰ **23時自動停止**: 7月〜9月以外は23時に自動停止（節電）
 - 🎛️ **3つの運転モード**:
   - 冷房20度（DI 77以上）
@@ -21,11 +22,10 @@ ESP32を使用したダイキンエアコンの自動制御システムです。
 | 部品 | 型番・仕様 | 用途 |
 |------|-----------|------|
 | マイコン | ESP32-DevKitC | メイン制御 |
-| 温湿度センサー | DHT22 | 環境測定 |
-| 赤外線LED | 940nm | エアコン制御 |
-| 赤外線受信モジュール | TSOP38238 | リモコン学習 |
-| OLEDディスプレイ | SSD1306 128x64 | 情報表示 |
-| 抵抗 | 100Ω | IR LED電流制限 |
+| 温湿度センサー | 温湿度センサー モジュール AM2302 | 環境測定 |
+| 赤外線LED | 5mm赤外線LED 940nm OSI5LA5113A | エアコン制御 |
+| 赤外線受信モジュール | 赤外線リモコン受信モジュールOSRB38C9AA | リモコン学習 |
+| OLEDディスプレイ | 0.96インチ 128×64ドット有機ELディスプレイ(OLED) | 情報表示 |
 
 ### ピン接続
 
@@ -53,16 +53,18 @@ ControliAirConditioner/
 │   ├── WiFiManager.h               # WiFi接続管理
 │   ├── TimeManager.h               # 時刻管理
 │   ├── AutoStopController.h        # 自動停止制御
+│   ├── WeatherForecast.h           # 天気予報取得
 │   ├── secrets.h.example           # 認証情報テンプレート
 │   └── secrets.h                   # WiFi認証情報（.gitignore）
 ├── src/
-│   ├── main.cpp                    # メイン制御（182行）
+│   ├── main.cpp                    # メイン制御
 │   ├── AirConditionerController.cpp
 │   ├── EnvironmentSensor.cpp
 │   ├── DisplayController.cpp
 │   ├── WiFiManager.cpp
 │   ├── TimeManager.cpp
-│   └── AutoStopController.cpp
+│   ├── AutoStopController.cpp
+│   └── WeatherForecast.cpp
 └── platformio.ini                  # ビルド設定
 ```
 
@@ -83,6 +85,7 @@ ControliAirConditioner/
 #### 📺 DisplayController
 OLEDディスプレイの制御
 - センサーデータ表示
+- 天気予報データ表示
 - 起動画面表示
 - リアルタイム更新
 
@@ -103,6 +106,13 @@ WiFi接続の管理
 - 23時の自動停止
 - 夏季（7〜9月）のスキップ
 - 1日1回のみ実行
+
+#### ☀️ WeatherForecast
+天気予報の取得と管理
+- Open-Meteo API連携
+- 起動時および1時間ごとに天気予報を自動取得
+- 最高・最低気温、天気コードを取得
+- 天気コードを読みやすい文字列に変換（Clear, Cloudy, Fog, Rain, Snow, Storm）
 
 ## セットアップ
 
@@ -179,6 +189,15 @@ namespace TimingConfig {
   constexpr unsigned long SENSOR_READ_INTERVAL_MS = 2000;   // センサー読取間隔
   constexpr unsigned long CONTROL_INTERVAL_MS = 60000;      // エアコン制御間隔
   constexpr unsigned long AUTO_STOP_CHECK_INTERVAL_MS = 60000;  // 停止チェック間隔
+  constexpr unsigned long WEATHER_UPDATE_INTERVAL_MS = 3600000; // 天気予報更新間隔（1時間）
+}
+```
+
+### 天気予報設定
+```cpp
+namespace WeatherConfig {
+  constexpr float LATITUDE = 35.653204f;   // 緯度（デフォルト：東京）
+  constexpr float LONGITUDE = 139.688272f; // 経度（デフォルト：東京）
 }
 ```
 
@@ -220,6 +239,17 @@ DI = 0.81T + 0.01H(0.99T - 14.3) + 46.3
 [Time] 時刻同期成功
 [Time] 現在時刻: 2025/10/11 22:30:15
 
+[Weather] WeatherForecast初期化完了
+[Weather] API URL: http://api.open-meteo.com/v1/forecast?...
+[Weather] 初回天気予報データ取得開始
+[Weather] APIリクエスト送信: http://api.open-meteo.com/v1/forecast?...
+[Weather] APIレスポンス受信成功
+[Weather] 天気予報データ更新完了
+[Weather]   - 最高気温: 18.5 °C
+[Weather]   - 最低気温: 15.4 °C
+[Weather]   - 天気コード: 55
+[Weather]   - 天気: Rain
+
 [Sensor] 環境センサー初期化完了
 [Display] ディスプレイ初期化成功
 [AC] エアコンコントローラー初期化完了
@@ -247,6 +277,7 @@ DI = 0.81T + 0.01H(0.99T - 14.3) + 46.3
 | Adafruit SSD1306 | ^2.5.7 | OLEDディスプレイ |
 | Adafruit GFX Library | ^1.11.3 | グラフィック描画 |
 | Adafruit Unified Sensor | ^1.1.14 | センサー統合 |
+| ArduinoJson | ^7.2.1 | JSON解析（天気予報API用） |
 
 ## トラブルシューティング
 
@@ -270,17 +301,21 @@ DI = 0.81T + 0.01H(0.99T - 14.3) + 46.3
 - NTPサーバー（ntp.nict.jp）にアクセスできるか確認
 - ファイアウォール設定を確認
 
+### 天気予報が取得できない
+- WiFi接続が成功しているか確認
+- Open-Meteo API（api.open-meteo.com）にアクセスできるか確認
+- シリアルモニタで天気予報のログを確認
+- 緯度・経度の設定を確認（`WeatherConfig`）
+
 ## ライセンス
 
 このプロジェクトはMITライセンスの下で公開されています。
-
-## 貢献
-
-プルリクエストを歓迎します！バグ報告や機能要望はIssuesでお願いします。
 
 ## 参考資料
 
 - [IRremoteESP8266 Documentation](https://github.com/crankyoldgit/IRremoteESP8266)
 - [DHT Sensor Library](https://github.com/adafruit/DHT-sensor-library)
 - [Adafruit SSD1306](https://github.com/adafruit/Adafruit_SSD1306)
+- [ArduinoJson Documentation](https://arduinojson.org/)
+- [Open-Meteo Weather API](https://open-meteo.com/)
 - [PlatformIO Documentation](https://docs.platformio.org/)
